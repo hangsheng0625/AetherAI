@@ -31,25 +31,25 @@ const Layout = () => {
             {/* Sidebar */}
             <Sidebar sidebar={sidebar} setSidebar={setSidebar} />
             
-            {/* Overlay for mobile */}
+            {/* Overlay for mobile and desktop */}
             {sidebar && (
                 <div 
-                    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-10 lg:hidden" 
+                    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-10" 
                     onClick={() => setSidebar(false)}
                 />
             )}
 
-            {/* Main content */}
-            <div className={`w-full flex items-start justify-start mt-12 transition-all duration-300 ${sidebar ? 'lg:ml-80' : ''}`}>
-                <div className={`w-full max-w-7xl mx-auto px-4 sm:px-20 xl:px-32 py-8 transition-all duration-300`}>
+            {/* Main content - NO margin shift */}
+            <div className="w-full flex items-start justify-start mt-12">
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-20 xl:px-32 py-8">
                     <Outlet />
                 </div>
             </div>
         </div>
-    ):(
-      <div className='flex items-center justify-center min-h-screen bg-slate-50'>
-        <SignIn></SignIn>
-      </div>
+    ) : (
+        <div className='flex items-center justify-center min-h-screen bg-slate-50'>
+            <SignIn />
+        </div>
     )
 }
 
