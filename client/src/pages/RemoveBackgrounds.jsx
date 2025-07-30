@@ -5,10 +5,14 @@ const RemoveBackgrounds = () => {
   const [input, setInput] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onSubmitHandler = () => {
+  const onSubmitHandler = async (e) => {
+    e.preventDefault(); // ✅ Prevents default form behavior
+
     if (!input) return;
 
     setIsProcessing(true);
+
+    // Simulate processing
     setTimeout(() => {
       setIsProcessing(false);
     }, 2000);
@@ -44,55 +48,56 @@ const RemoveBackgrounds = () => {
         {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Upload Card */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="fileInput"
-                  className="block text-sm font-semibold text-gray-700 mb-3"
-                >
-                  Upload an Image
-                </label>
-                <div className="relative">
-                  <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    className="w-full border-2 border-dashed border-gray-300 p-6 rounded-xl opacity-0 absolute z-10 inset-0 cursor-pointer"
-                    onChange={handleFileChange}
-                  />
-                  <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center text-center text-gray-500 pointer-events-none bg-white">
-                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-sm">
-                      {input ? input.name : "Click to upload or drag & drop"}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      PNG, JPG, JPEG up to 10MB
-                    </p>
-                  </div>
+          <form
+            onSubmit={onSubmitHandler}
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 space-y-6"
+          >
+            <div>
+              <label
+                htmlFor="fileInput"
+                className="block text-sm font-semibold text-gray-700 mb-3"
+              >
+                Upload an Image
+              </label>
+              <div className="relative">
+                <input
+                  id="fileInput"
+                  type="file"
+                  accept="image/*"
+                  className="w-full border-2 border-dashed border-gray-300 p-6 rounded-xl opacity-0 absolute z-10 inset-0 cursor-pointer"
+                  onChange={handleFileChange}
+                />
+                <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center text-center text-gray-500 pointer-events-none bg-white">
+                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                  <p className="text-sm">
+                    {input ? input.name : "Click to upload or drag & drop"}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    PNG, JPG, JPEG up to 10MB
+                  </p>
                 </div>
               </div>
-
-              {/* Process Button */}
-              <button
-                onClick={onSubmitHandler}
-                disabled={isProcessing || !input}
-                className="cursor-pointer w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isProcessing ? (
-                  <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5" />
-                    Remove Background
-                  </>
-                )}
-              </button>
             </div>
-          </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isProcessing || !input}
+              className="cursor-pointer w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  Remove Background
+                </>
+              )}
+            </button>
+          </form>
 
           {/* Output Card */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">

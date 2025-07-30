@@ -20,23 +20,13 @@ const BlogTitle = () => {
   const [generatedTitles, setGeneratedTitles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateTitles = (keyword, category) => {
-    const templates = [
-      `10 Amazing ${keyword} Tips for ${category} Enthusiasts`,
-      `The Ultimate Guide to ${keyword} in ${category}`,
-      `How ${keyword} is Revolutionizing ${category}`,
-      `${keyword}: The Secret to Better ${category}`,
-      `Why ${keyword} Matters More Than Ever in ${category}`,
-    ];
-    return templates;
-  };
-
   const onSubmitHandler = () => {
     if (!input.trim()) return;
 
     setIsGenerating(true);
     setTimeout(() => {
-      const titles = generateTitles(input, selectedCategory);
+      // TEMP: Replace this with real title generation logic (e.g., from OpenAI API)
+      const titles = Array.from({ length: 5 }, (_, i) => `${input} - Title Suggestion ${i + 1}`);
       setGeneratedTitles(titles);
       setIsGenerating(false);
     }, 1000);
@@ -48,12 +38,13 @@ const BlogTitle = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
+      e.preventDefault(); // prevent form submit on Enter
       onSubmitHandler();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br ">
+    <div className="min-h-screen bg-gradient-to-br">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
