@@ -129,7 +129,7 @@ export const generateImage = async (req, res) => {
     const plan = req.plan;
 
     // Free usage limit check
-    if (plan == 'free') {
+    if (plan === 'free') {
       return res.json({
         success: false,
         message: 'This feature is only available for premium users.'
@@ -152,6 +152,48 @@ export const generateImage = async (req, res) => {
       await sql`
         INSERT INTO creations (user_id, prompt, content, type, publish) 
         VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})
+      `;
+
+      res.json({
+        success: true,
+        content: secure_url
+      });
+
+
+  } catch (error) {
+    console.error('Error generating article:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating article'
+    });
+  }
+};
+
+export const removeImageBackground = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const {image} = req.files;
+    const plan = req.plan;
+
+    // Free usage limit check
+    if (plan === 'free') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium users.'
+      });
+    }
+
+    const {secure_url} = await cloudinary.uploader.upload(image.path, {
+      transformation: [
+        { effect: "remove_background" },
+        { background_removal: "remove_the_background" }
+      ]
+    });
+
+      // Save result to database
+      await sql`
+        INSERT INTO creations (user_id, prompt, content, type) 
+        VALUES (${userId}, 'Remove background from image', ${secure_url}, 'image')
       `;
 
       res.json({
