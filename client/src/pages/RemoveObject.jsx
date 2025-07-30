@@ -1,11 +1,159 @@
-import React from 'react'
+import React, { useState } from "react";
+import { Sparkles, Image, Upload, Trash2, RefreshCw, Scissors } from "lucide-react";
 
 const RemoveObject = () => {
-  return (
-    <div>
-        <h1>Remove Object</h1>
-    </div>
-  )
-}
+  const [input, setInput] = useState(null);
+  const [object, setObject] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-export default RemoveObject
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    if (!input) return;
+
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+    }, 2000);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) setInput(file);
+  };
+
+  const removeObject = () => {
+    setInput(null);
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput) fileInput.value = "";
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Sparkles className="text-blue-500 w-7 h-7" />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              AI Object Remover
+            </h1>
+          </div>
+          <p className="text-gray-600 text-sm">
+            Upload an image and remove unwanted objects with AI.
+          </p>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Upload Card */}
+          <form
+            onSubmit={onSubmitHandler}
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 space-y-6"
+          >
+            <div>
+              <label
+                htmlFor="fileInput"
+                className="block text-sm font-semibold text-gray-700 mb-3"
+              >
+                Upload an Image
+              </label>
+              <div className="relative">
+                <input
+                  id="fileInput"
+                  type="file"
+                  accept="image/*"
+                  className="w-full border-2 border-dashed border-gray-300 p-6 rounded-xl opacity-0 absolute z-10 inset-0 cursor-pointer"
+                  onChange={handleFileChange}
+                />
+                <div className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center text-center text-gray-500 pointer-events-none bg-white">
+                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                  <p className="text-sm">
+                    {input ? input.name : "Click to upload or drag & drop"}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    PNG, JPG, JPEG up to 10MB
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Describe the Object to Remove
+              </label>
+              <textarea
+                className="border-2 border-gray-300 p-4 rounded-xl w-full"
+                onChange={(e) => setObject(e.target.value)}
+                value={object}
+                rows={4}
+                placeholder="Describe the object to remove..."
+              />
+            </div>
+
+            {/* Process Button */}
+            <button
+              type="submit"
+              disabled={isProcessing || !input}
+              className="cursor-pointer w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  Remove Object
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Output Card */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Scissors className="w-6 h-6 text-blue-500" />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Output Preview
+              </h2>
+            </div>
+
+            {input ? (
+              <div className="space-y-4">
+                <div className="w-full h-80 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
+                  <img
+                    src={URL.createObjectURL(input)}
+                    alt="Uploaded Preview"
+                    className="object-contain max-h-full max-w-full rounded"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={removeObject}
+                    className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-md transition-all flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove Image
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Scissors className="w-10 h-10 text-blue-400" />
+                </div>
+                <p className="text-gray-500 mb-2">No image uploaded yet</p>
+                <p className="text-sm text-gray-400">
+                  Upload an image to see the preview here
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RemoveObject;
