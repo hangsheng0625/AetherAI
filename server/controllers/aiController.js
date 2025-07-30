@@ -172,7 +172,7 @@ export const generateImage = async (req, res) => {
 export const removeImageBackground = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const {image} = req.files;
+    const {image} = req.file;
     const plan = req.plan;
 
     // Free usage limit check
@@ -199,6 +199,50 @@ export const removeImageBackground = async (req, res) => {
       res.json({
         success: true,
         content: secure_url
+      });
+
+
+  } catch (error) {
+    console.error('Error generating article:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating article'
+    });
+  }
+};
+
+export const removeImageObject = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const {image} = req.file;
+    const plan = req.plan;
+    const { object } = req.body();
+
+
+    // Free usage limit check
+    if (plan === 'free') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium users.'
+      });
+    }
+
+    const {public_id} = await cloudinary.uploader.upload(image.path);
+
+    const imageUrl = cloudinary.url(public_id, {
+        transformation: [{ effect: `gen_remove:${object}` }],
+        resource_type: "image"
+    })
+
+      // Save result to database
+      await sql`
+        INSERT INTO creations (user_id, prompt, content, type) 
+        VALUES (${userId}, ${`Remove ${object} from image`}', ${imageUrl}, 'image')
+      `;
+
+      res.json({
+        success: true,
+        content: imageUrl
       });
 
 
