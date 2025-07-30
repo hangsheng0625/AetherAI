@@ -2,6 +2,10 @@ import OpenAI from "openai";
 import sql from "../configs/db.js";
 import { clerkClient } from "@clerk/express";
 import {v2 as cloudinary} from 'cloudinary';
+import fs from 'fs';
+import axios from 'axios';
+import pdf from 'pdf-parse/lib/pdf-parse.js';
+import e from "express";
 
 const AI = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -80,7 +84,7 @@ export const generateBlogTitle = async (req, res) => {
       });
     }
 
-    // Generate article using Gemini
+    // Generate blog title using Gemini
     const response = await AI.chat.completions.create({
       model: "gemini-2.0-flash",
       messages: [
@@ -114,10 +118,10 @@ export const generateBlogTitle = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error generating article:', error);
+    console.error('Error generating blog title:', error);
     res.status(500).json({
       success: false,
-      message: 'Error generating article'
+      message: error.message
     });
   }
 };
@@ -161,10 +165,10 @@ export const generateImage = async (req, res) => {
 
 
   } catch (error) {
-    console.error('Error generating article:', error);
+    console.error('Error generating image:', error);
     res.status(500).json({
       success: false,
-      message: 'Error generating article'
+      message: error.message
     });
   }
 };
@@ -203,10 +207,10 @@ export const removeImageBackground = async (req, res) => {
 
 
   } catch (error) {
-    console.error('Error generating article:', error);
+    console.error('Error removing image background:', error);
     res.status(500).json({
       success: false,
-      message: 'Error generating article'
+      message: error.message
     });
   }
 };
@@ -247,10 +251,72 @@ export const removeImageObject = async (req, res) => {
 
 
   } catch (error) {
-    console.error('Error generating article:', error);
+    console.error('Error removing object:', error);
     res.status(500).json({
       success: false,
-      message: 'Error generating article'
+      message: error.message
+    });
+  }
+};
+
+export const resumeReview = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const resume = req.file;
+    const plan = req.plan;
+
+
+    // Free usage limit check
+    if (plan === 'free') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium users.'
+      });
+    }
+
+    if(resume.size > 5 * 1024 * 1024) { // 5MB limit
+      return res.json({
+        success: false,
+        message: 'Resume file size exceeds 5MB limit.'
+      });
+    }
+
+    const dataBuffer = fs.readFileSync(resume.path);
+    const pdfData = await pdf(dataBuffer);
+
+    const prompt = `Review the following resume and provide constructive feedbacks based on its strengths, weakness and areas of improvent: Resume Content: \n\n${pdfData.text}`;
+
+    const response = await AI.chat.completions.create({
+      model: "gemini-2.0-flash",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
+
+    const content = response.choices[0].message.content;
+
+    // Save result to database
+    await sql`
+    INSERT INTO creations (user_id, prompt, content, type) 
+    VALUES (${userId}, 'Review the uploaded resume', ${content}, 'Resume-review')
+    `;
+
+    res.json({
+    success: true,
+    content
+    });
+
+
+  } catch (error) {
+    console.error('Error generating feedbacks:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
