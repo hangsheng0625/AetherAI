@@ -11,8 +11,24 @@ import RemoveBackground from './pages/RemoveBackgrounds.jsx'
 import RemoveObject from './pages/RemoveObject.jsx'
 import ReviewResume from './pages/ReviewResume.jsx'
 import Community from './pages/Community.jsx'
+import { useAuth } from '@clerk/clerk-react'
+import { useEffect } from 'react'
 
 const App = () => {
+
+  // create token
+  const { getToken } = useAuth()
+  useEffect(() => {
+    getToken().then((token) => {
+      if (token) {
+        console.log(token);
+        
+        localStorage.setItem('token', token)
+      }
+    }).catch((error) => {
+      console.error('Error fetching token:', error)
+    })
+  }, [getToken])
   return (
     <div>
       <Routes>
