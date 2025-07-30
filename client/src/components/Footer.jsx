@@ -14,7 +14,7 @@ const Footer = () => {
               alt="dummyLogoDark"
             />
             <p className="mt-6 text-sm">
-                QuickAI is a platform that provides powerful AI tools to help you create amazing content effortlessly. Our mission is to empower creators with the latest AI technology, making content creation faster and more efficient.
+                AetherAI is a platform that provides powerful AI tools to help you create amazing content effortlessly. Our mission is to empower creators with the latest AI technology, making content creation faster and more efficient.
             </p>
           </div>
 
@@ -51,7 +51,7 @@ const Footer = () => {
 
         {/* Footer Bottom Text */}
         <p className="pt-4 text-center text-xs md:text-sm pb-5">
-          Copyright 2025 ©Quick.AI <a href="https://prebuiltui.com"></a>. All Right Reserved.
+          Copyright 2025 AetherAI <a href="https://prebuiltui.com"></a>. All Right Reserved.
         </p>
       </footer>
     </div>
