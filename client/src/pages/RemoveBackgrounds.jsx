@@ -1,37 +1,76 @@
 import React, { useState } from "react";
-import { Sparkles, Image, Upload, Trash2, RefreshCw } from "lucide-react";
+import { Sparkles, Image, Upload, Trash2, RefreshCw, Download } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const RemoveBackgrounds = () => {
   const [input, setInput] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [content, setContent] = useState("");
+
+  const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
-    e.preventDefault(); // ✅ Prevents default form behavior
+    e.preventDefault();
 
-    if (!input) return;
+    try {
+      setIsProcessing(true);
+      const formData = new FormData();
+      formData.append('image', input)
+      const { data } = await axios.post(
+        "/api/ai/remove-image-background",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
 
-    setIsProcessing(true);
-
-    // Simulate processing
-    setTimeout(() => {
+      if (data.success) {
+        setContent(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+        toast.error(error.message);
+    } finally {
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) setInput(file);
+    if (file) {
+      setInput(file);
+      setContent(""); // Clear previous result when new file is selected
+    }
   };
 
   const removeImage = () => {
     setInput(null);
+    setContent("");
     const fileInput = document.getElementById("fileInput");
     if (fileInput) fileInput.value = "";
   };
 
+  const downloadImage = () => {
+    if (content) {
+      const link = document.createElement('a');
+      link.href = content;
+      link.download = 'background-removed.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br p-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -46,7 +85,7 @@ const RemoveBackgrounds = () => {
         </div>
 
         {/* Main Grid */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* Upload Card */}
           <form
             onSubmit={onSubmitHandler}
@@ -97,35 +136,37 @@ const RemoveBackgrounds = () => {
                 </>
               )}
             </button>
+
+            {input && (
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-md transition-all flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Remove Image
+                </button>
+              </div>
+            )}
           </form>
 
-          {/* Output Card */}
+          {/* Original Image Preview */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-6">
               <Image className="w-6 h-6 text-blue-500" />
               <h2 className="text-xl font-semibold text-gray-800">
-                Output Preview
+                Original Image
               </h2>
             </div>
 
             {input ? (
-              <div className="space-y-4">
-                <div className="w-full h-80 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
-                  <img
-                    src={URL.createObjectURL(input)}
-                    alt="Uploaded Preview"
-                    className="object-contain max-h-full max-w-full rounded"
-                  />
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={removeImage}
-                    className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-md transition-all flex items-center gap-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Remove Image
-                  </button>
-                </div>
+              <div className="w-full h-80 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200">
+                <img
+                  src={URL.createObjectURL(input)}
+                  alt="Original"
+                  className="object-contain max-h-full max-w-full rounded"
+                />
               </div>
             ) : (
               <div className="text-center py-16">
@@ -135,6 +176,54 @@ const RemoveBackgrounds = () => {
                 <p className="text-gray-500 mb-2">No image uploaded yet</p>
                 <p className="text-sm text-gray-400">
                   Upload an image to see the preview here
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Processed Result */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Sparkles className="w-6 h-6 text-green-500" />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Background Removed
+              </h2>
+            </div>
+
+            {content ? (
+              <div className="space-y-4">
+                <div className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden border border-gray-200 relative">
+                  {/* Checkerboard pattern to show transparency */}
+                  <div className="absolute inset-0 opacity-20" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='%23000' fill-opacity='0.1'%3e%3crect x='0' y='0' width='10' height='10'/%3e%3crect x='10' y='10' width='10' height='10'/%3e%3c/g%3e%3c/svg%3e")`,
+                    backgroundSize: '20px 20px'
+                  }}></div>
+                  <img
+                    src={content}
+                    alt="Background Removed"
+                    className="object-contain max-h-full max-w-full rounded relative z-10"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={downloadImage}
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-10 h-10 text-green-400" />
+                </div>
+                <p className="text-gray-500 mb-2">
+                  {isProcessing ? "Processing your image..." : "Processed image will appear here"}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {isProcessing ? "Please wait while we remove the background" : "Upload and process an image to see the result"}
                 </p>
               </div>
             )}
