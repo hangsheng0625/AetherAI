@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { Sparkles, Edit, Hash, Copy, RefreshCw } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+import Markdown from "react-markdown";
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const BlogTitle = () => {
   const blogCategories = [
     "General",
-    "Technology", 
+    "Technology",
     "Health",
     "Travel",
     "Education",
@@ -20,16 +26,35 @@ const BlogTitle = () => {
   const [generatedTitles, setGeneratedTitles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const onSubmitHandler = () => {
-    if (!input.trim()) return;
+  const { getToken } = useAuth();
 
-    setIsGenerating(true);
-    setTimeout(() => {
-      // TEMP: Replace this with real title generation logic (e.g., from OpenAI API)
-      const titles = Array.from({ length: 5 }, (_, i) => `${input} - Title Suggestion ${i + 1}`);
-      setGeneratedTitles(titles);
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setIsGenerating(true);
+      const prompt = `Generate a blog title for the keyword ${input} in the category ${selectedCategory}`;
+      const { data } = await axios.post(
+        "/api/ai/generate-blog-title",
+        { prompt },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        setGeneratedTitles(
+          data.content.split("\n").filter((line) => line.trim())
+        );
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error generating title");
+    } finally {
       setIsGenerating(false);
-    }, 1000);
+    }
   };
 
   const copyToClipboard = (title) => {
@@ -38,8 +63,8 @@ const BlogTitle = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // prevent form submit on Enter
-      onSubmitHandler();
+      e.preventDefault();
+      onSubmitHandler(e);
     }
   };
 
@@ -55,7 +80,8 @@ const BlogTitle = () => {
             </h1>
           </div>
           <p className="text-gray-600">
-            Create compelling blog titles that capture attention and drive engagement
+            Create compelling blog titles that capture attention and drive
+            engagement
           </p>
         </div>
 
@@ -125,38 +151,26 @@ const BlogTitle = () => {
 
           {/* Output Section */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <Hash className="w-6 h-6 text-blue-500" />
-              <h2 className="text-xl font-semibold text-gray-800">Generated Titles</h2>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Generated Titles
+              </h2>
             </div>
 
             {generatedTitles.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Edit className="w-8 h-8 text-blue-400" />
-                </div>
-                <p className="text-gray-500 mb-2">No titles generated yet</p>
-                <p className="text-sm text-gray-400">Enter a topic and click "Generate Titles" to see results</p>
+              <div className="text-gray-600 flex items-center justify-center h-32 sm:h-48 lg:h-64">
+                <p className="text-sm sm:text-base text-center px-4">
+                  {isGenerating
+                    ? "Generating your blog titles..."
+                    : "Enter a topic and generate titles to see the result here."}
+                </p>
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {generatedTitles.map((title, index) => (
-                  <div
-                    key={index}
-                    className="group p-4 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-gray-800 leading-relaxed flex-1">{title}</p>
-                      <button
-                        onClick={() => copyToClipboard(title)}
-                        className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-blue-100 transition-all duration-200 flex-shrink-0"
-                        title="Copy to clipboard"
-                      >
-                        <Copy className="w-4 h-4 text-blue-500" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="h-64 sm:h-80 lg:h-96 overflow-y-auto text-sm sm:text-base text-slate-600 bg-gray-50 rounded-lg p-3 sm:p-4">
+                <div className="reset-tw whitespace-pre-wrap leading-relaxed">
+                  <Markdown>{generatedTitles.join("\n")}</Markdown>
+                </div>
               </div>
             )}
           </div>
