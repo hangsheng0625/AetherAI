@@ -155,7 +155,7 @@ export const generateImage = async (req, res) => {
       // Save result to database
       await sql`
         INSERT INTO creations (user_id, prompt, content, type, publish) 
-        VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})
+        VALUES (${userId}, ${prompt}, ${secure_url}, 'Generate-Image', ${publish ?? false})
       `;
 
       res.json({
@@ -197,7 +197,7 @@ export const removeImageBackground = async (req, res) => {
       // Save result to database
       await sql`
         INSERT INTO creations (user_id, prompt, content, type) 
-        VALUES (${userId}, 'Remove background from image', ${secure_url}, 'image')
+        VALUES (${userId}, 'Remove background from image', ${secure_url}, 'Remove-Image-Background')
       `;
 
       res.json({
@@ -241,7 +241,7 @@ export const removeImageObject = async (req, res) => {
       // Save result to database
       await sql`
         INSERT INTO creations (user_id, prompt, content, type) 
-        VALUES (${userId}, ${`Remove ${object} from image`}, ${imageUrl}, 'image')
+        VALUES (${userId}, ${`Remove ${object} from image`}, ${imageUrl}, 'Remove-Image-Object')
       `;
 
       res.json({
