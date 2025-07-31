@@ -3,7 +3,6 @@ import { Sparkles, Image, RefreshCw } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
-import { data } from "react-router-dom";
 
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
