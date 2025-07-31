@@ -1,9 +1,12 @@
 {
   "name": "client",
   "version": "1.0.0",
+  "type": "module",
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "eslint.config.js",
   "dependencies": {
+    "@clerk/clerk-react": "^5.38.0",
+    "@tailwindcss/vite": "^4.1.11",
     "acorn": "^8.15.0",
     "acorn-jsx": "^5.3.2",
     "ajv": "^6.12.6",
@@ -169,7 +172,6 @@
     "path-key": "^3.1.1",
     "picocolors": "^1.1.1",
     "picomatch": "^4.0.3",
-    "postcss": "^8.5.6",
     "prelude-ls": "^1.2.1",
     "property-information": "^7.1.0",
     "proxy-from-env": "^1.1.0",
@@ -199,7 +201,6 @@
     "style-to-object": "^1.0.9",
     "supports-color": "^7.2.0",
     "swr": "^2.3.4",
-    "tailwindcss": "^4.1.11",
     "tapable": "^2.2.2",
     "tar": "^7.4.3",
     "tinyglobby": "^0.2.14",
@@ -225,12 +226,18 @@
     "yocto-queue": "^0.1.0",
     "zwitch": "^2.0.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "vercel-build": "vite build"  },
+    "vercel-build": "vite build"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
