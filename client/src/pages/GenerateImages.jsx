@@ -1,26 +1,60 @@
 import React, { useState } from "react";
 import { Sparkles, Image, RefreshCw } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+import { data } from "react-router-dom";
+
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const GenerateImages = () => {
   const ImageStyle = [
-    "Realistic", "Cartoon", "Abstract", "3D Render", "Anime",
-    "Vintage", "Ghibli", "Fantasy", "Cyberpunk", "Nature",
+    "Realistic",
+    "Cartoon",
+    "Abstract",
+    "3D Render",
+    "Anime",
+    "Vintage",
+    "Ghibli",
+    "Fantasy",
+    "Cyberpunk",
+    "Nature",
   ];
 
   const [selectedStyle, setSelectedStyle] = useState("Realistic");
   const [input, setInput] = useState("");
   const [publishedImage, setPublishedImage] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [content, setContent] = useState("");
+
+  const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
-    e.preventDefault(); // ✅ Prevent form from reloading
+    e.preventDefault();
 
-    if (!input.trim()) return;
+    try {
+      setIsGenerating(true);
+      const prompt = `Generate an image of ${input} in the style ${selectedStyle}`;
+      const { data } = await axios.post(
+        "/api/ai/generate-image",
+        { prompt, publishedImage },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
 
-    setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
-    }, 2000);
+      if (data.success) {
+        setContent(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setIsGenerating(false);
   };
 
   const handleKeyPress = (e) => {
@@ -139,7 +173,8 @@ const GenerateImages = () => {
               </h2>
             </div>
 
-            <div className="text-center py-12">
+            {
+              !content ? (            <div className="text-center py-12">
               <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Image className="w-12 h-12 text-gray-400" />
               </div>
@@ -148,6 +183,14 @@ const GenerateImages = () => {
                 Enter a description and click "Generate Image" to see results
               </p>
             </div>
+            ) : (
+              <div className="mt-3 h-full">
+                <img src={content} alt="image" className="w-full h-full" />
+              </div>
+            )
+            }
+
+
           </div>
         </div>
       </div>
