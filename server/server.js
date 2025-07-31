@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the QuickAI Server!');
 });
 
-app.use(requireAuth())
+// app.use(requireAuth())
 app.use('/api/ai', aiRouter);
 app.use('/api/user', userRouter);
 
