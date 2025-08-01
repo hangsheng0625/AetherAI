@@ -1,6 +1,6 @@
 # 🚀 AetherAI - Advanced AI-Powered SaaS Platform
 
-![AetherAI Banner](client/public/Aether-AI-logo.png)
+![AetherAI Banner](client/src/assets/AetherAI-logo-with-text.svg)
 
 ## 🌐 Live Demo
 
