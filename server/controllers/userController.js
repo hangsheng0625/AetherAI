@@ -13,6 +13,38 @@ export const getUserCreations = async (req, res) => {
   }
 }
 
+export const deleteCreation = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { creationId } = req.params;
+
+    // Check if the creation exists and belongs to the user
+    const [creation] = await sql`
+      SELECT * FROM creations WHERE id = ${creationId} AND user_id = ${userId}
+    `;
+
+    if (!creation) {
+      return res.json({
+        success: false,
+        message: 'Creation not found or unauthorized'
+      });
+    }
+
+    // Delete the creation
+    await sql`
+      DELETE FROM creations WHERE id = ${creationId} AND user_id = ${userId}
+    `;
+
+    res.json({ 
+      success: true, 
+      message: 'Creation deleted successfully' 
+    });
+
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
 export const getPublishCreations = async (req, res) => {
   try {
     const creations = await sql`

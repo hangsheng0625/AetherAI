@@ -29,6 +29,12 @@ const Dashboard = () => {
     setLoading(false);
   };
 
+  const handleDeleteCreation = (creationId) => {
+    setCreations(prevCreations => 
+      prevCreations.filter(creation => creation.id !== creationId)
+    );
+  };
+
   useEffect(() => {
     getDashboardData();
   }, []);
@@ -63,10 +69,21 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className='w-full max-w-6xl mt-12'>
-          <p className='text-lg font-semibold text-gray-800 mb-4 rounded-5xl'>Recent Creations</p>
-          {creations.map((item) => (
-            <CreationItem key={item.id} item={item} />
-          ))}
+          <p className='text-lg font-semibold text-gray-800 mb-4'>Recent Creations</p>
+          {creations.length === 0 ? (
+            <div className='text-center py-12'>
+              <p className='text-gray-500 text-lg'>No creations yet</p>
+              <p className='text-gray-400 text-sm mt-2'>Start creating content with our AI tools!</p>
+            </div>
+          ) : (
+            creations.map((item) => (
+              <CreationItem 
+                key={item.id} 
+                item={item} 
+                onDelete={handleDeleteCreation}
+              />
+            ))
+          )}
         </div>
       )}
     </div>
