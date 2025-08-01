@@ -14,8 +14,8 @@ const Hero = () => {
         </div>
 
         <div className='flex flex-wrap justify-center gap-4 text-sm max-sm:text-xs'> 
-            <button onClick={() => navigate('/ai')} className='bg-primary text-white py-2 px-4 rounded cursor-pointer'>Start creating now</button>
-            <button className='border border-primary text-primary py-2 px-4 rounded cursor-pointer'>Watch Demo</button>
+            <button onClick={() => navigate('/ai')} className='bg-primary text-white py-2 px-4 rounded-3xl cursor-pointer'>Start creating now</button>
+            <button className='border border-primary text-primary py-2 px-4 rounded-3xl cursor-pointer'>Watch Demo</button>
         </div>
 
         <div className='flex items-center justify-center gap-2 mt-8 text-gray-600'>
