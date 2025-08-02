@@ -1,4 +1,4 @@
-# 🚀 AetherAI - Advanced AI-Powered SaaS Platform
+# 🚀 AetherAI - A simple AI-Powered SaaS Platform
 
 ![AetherAI Banner](client/src/assets/AetherAI-logo-with-text.svg)
 
@@ -6,10 +6,6 @@
 
 - **Frontend**: [https://aether-ai-client.vercel.app](https://aether-ai-client.vercel.app)
 - **Backend API**: [https://aether-ai-server.vercel.app](https://aether-ai-server.vercel.app)
-
-## 📖 Overview
-
-**AetherAI** is a comprehensive Software-as-a-Service (SaaS) platform that harnesses the power of multiple AI models and cloud services to provide users with cutting-edge artificial intelligence tools. Built with modern web technologies, AetherAI offers a seamless experience for content creation, image manipulation, and document analysis.
 
 ## ✨ Key Features
 
